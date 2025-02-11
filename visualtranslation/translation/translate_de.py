@@ -10,6 +10,7 @@ from transformers import (
     M2M100ForConditionalGeneration,
     M2M100Tokenizer,
 )
+## TODO : 영-한 번역기로 변경해야함
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--eng_to_hin",action="store_true")
