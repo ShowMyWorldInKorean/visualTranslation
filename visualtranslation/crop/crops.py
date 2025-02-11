@@ -1,9 +1,16 @@
+import os
 import cv2
 import json
 import argparse
-import os
-from tqdm import tqdm
 
+import numpy as np
+
+from tqdm import tqdm
+from PIL import Image
+
+## TODO : 함수로 리펙터링 하기
+
+## generate_crops.py
 parser = argparse.ArgumentParser()
 parser.add_argument("--folder", type=str, required=True)
 args = parser.parse_args()
@@ -33,3 +40,19 @@ for img_id in tqdm(img_ids):
         print(f"Error in {img_id}")
 
 print("crops created.")
+
+## modify_crops.py
+data = json.load(open("tmp/para_info.json", "r"))
+for k, v in tqdm(data.items()):
+    try:
+        img = Image.open(f"tmp/i_s/{k}.png")
+        w, h = img.size
+        new_w = w/v['ratio']
+        new_img = Image.new("RGB", (int(new_w), int(h)))
+        for i in range(np.ceil(1/v['ratio']).astype(int)):
+            new_img.paste(img, (int(i*w), 0))
+        new_img.save(f"tmp/i_s/{k}.png")
+    except:
+        print(f"Error in {k}")
+
+print("crops transformed.")
