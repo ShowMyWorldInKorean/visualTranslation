@@ -10,35 +10,81 @@ The function takes in several command-line arguments to control the clustering p
 The function reads in the image word_crop information from the input JSON file, performs clustering and grouping based on spatial relationships, and stores the resulting paragraph and line information in the `patch_info` dictionary. The `patch_info` dictionary is then written to a new JSON file named `para_info.json`.
 """
 
-import argparse
+## exclude_key_words.py
+import re
 import json
+import argparse
 
 import numpy as np
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--a1", type=float, default=0.2)
-parser.add_argument("--a2", type=float, default=0.7)
-parser.add_argument("--b1", type=float, default=0.4)
-args = parser.parse_args()
+perser = argparse.ArgumentParser()
+perser.add_argument("--file", type=str, required=True)
+args = perser.parse_args()
+file = args.file
 
-alpha1 = args.a1
-alpha2 = args.a2
-beta1 = args.b1
-file = "tmp/i_s_info.json"
+
+tlds = (
+    "com", "org", "net", "int", "edu", "gov", "mil", "info", "biz", "name", "museum", "coop", "aero", "xxx", "idv"
+)
+
+def exclude(s):
+    if re.fullmatch(r'\d+(\.\d+)?', s):
+        return True
+    if s.startswith("www.") or re.fullmatch(r'(https?://)?(?:[-\w.]|(?:%[\da-fA-F]{2}))+(\.(?:' + '|'.join(tlds) + '))', s):
+        return True
+    return bool(re.fullmatch(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', s))
+
+data = json.load(open(file,'r'))
+exclude_words = {k: v for k, v in data.items() if not exclude(v["txt"])}
+
+# final_data = {k: v for k, v in data.items() if not exclude(v["txt"])}
+# json.dump(final_data, open("tmp/i_s_info.json",'w'), indent=4)
+
+
+
+## detect_para.py
+
+# parser = argparse.ArgumentParser()
+# parser.add_argument("--a1", type=float, default=0.2)
+# parser.add_argument("--a2", type=float, default=0.7)
+# parser.add_argument("--b1", type=float, default=0.4)
+# args = parser.parse_args()
+
+# alpha1 = args.a1
+# alpha2 = args.a2
+# beta1 = args.b1
+
+# file = "tmp/i_s_info.json"
+
+# with open(file, "r") as f:
+#     data = json.load(f)
+
+# word_crops = list(data.keys())
+
+# for i in word_crops:
+#     data[i]["x1"], data[i]["y1"], data[i]["x2"], data[i]["y2"] = data[i]["bbox"]
+#     data[i]["xc"] = (data[i]["x1"] + data[i]["x2"]) / 2
+#     data[i]["yc"] = (data[i]["y1"] + data[i]["y2"]) / 2
+#     data[i]["w"] = data[i]["x2"] - data[i]["x1"]
+#     data[i]["h"] = data[i]["y2"] - data[i]["y1"]
+
+## data -> exclude_words
+
+alpha1 = 0.2
+alpha2 = 0.
+beta1 = 0.4
 
 beta1 = round(beta1, 1)
 
-with open(file, "r") as f:
-    data = json.load(f)
-
-word_crops = list(data.keys())
+word_crops = list(exclude_words.keys())
 
 for i in word_crops:
-    data[i]["x1"], data[i]["y1"], data[i]["x2"], data[i]["y2"] = data[i]["bbox"]
-    data[i]["xc"] = (data[i]["x1"] + data[i]["x2"]) / 2
-    data[i]["yc"] = (data[i]["y1"] + data[i]["y2"]) / 2
-    data[i]["w"] = data[i]["x2"] - data[i]["x1"]
-    data[i]["h"] = data[i]["y2"] - data[i]["y1"]
+    exclude_words[i]["x1"], exclude_words[i]["y1"], exclude_words[i]["x2"], exclude_words[i]["y2"] = exclude_words[i]["bbox"]
+    exclude_words[i]["xc"] = (exclude_words[i]["x1"] + exclude_words[i]["x2"]) / 2
+    exclude_words[i]["yc"] = (exclude_words[i]["y1"] + exclude_words[i]["y2"]) / 2
+    exclude_words[i]["w"] = exclude_words[i]["x2"] - exclude_words[i]["x1"]
+    exclude_words[i]["h"] = exclude_words[i]["y2"] - exclude_words[i]["y1"]
+
 
 patch_info = {}
 while word_crops:
@@ -65,56 +111,56 @@ while word_crops:
             for i in range(len(img_word_crops)):
                 word_crop_ = img_word_crops[i]
                 if (
-                    abs(data[word_crop_]["yc"] - data[word_crop]["yc"])
-                    < data[word_crop]["h"] * alpha1
+                    abs(exclude_words[word_crop_]["yc"] - exclude_words[word_crop]["yc"])
+                    < exclude_words[word_crop]["h"] * alpha1
                 ):
-                    if data[word_crop]["xc"] > data[word_crop_]["xc"]:
-                        if (data[word_crop]["x1"] - data[word_crop_]["x2"]) < data[
+                    if exclude_words[word_crop]["xc"] > exclude_words[word_crop_]["xc"]:
+                        if (exclude_words[word_crop]["x1"] - exclude_words[word_crop_]["x2"]) < exclude_words[
                             word_crop
                         ]["h"] * alpha2:
                             para_words_group.append(word_crop_)
                             added.append(word_crop_)
                     else:
-                        if (data[word_crop_]["x1"] - data[word_crop]["x2"]) < data[
+                        if (exclude_words[word_crop_]["x1"] - exclude_words[word_crop]["x2"]) < exclude_words[
                             word_crop
                         ]["h"] * alpha2:
                             para_words_group.append(word_crop_)
                             added.append(word_crop_)
                 else:
-                    if data[word_crop]["yc"] > data[word_crop_]["yc"]:
-                        if (data[word_crop]["y1"] - data[word_crop_]["y2"]) < data[
+                    if exclude_words[word_crop]["yc"] > exclude_words[word_crop_]["yc"]:
+                        if (exclude_words[word_crop]["y1"] - exclude_words[word_crop_]["y2"]) < exclude_words[
                             word_crop
                         ]["h"] * beta1 and (
                             (
-                                (data[word_crop_]["x1"] < data[word_crop]["x2"])
-                                and (data[word_crop_]["x1"] > data[word_crop]["x1"])
+                                (exclude_words[word_crop_]["x1"] < exclude_words[word_crop]["x2"])
+                                and (exclude_words[word_crop_]["x1"] > exclude_words[word_crop]["x1"])
                             )
                             or (
-                                (data[word_crop_]["x2"] < data[word_crop]["x2"])
-                                and (data[word_crop_]["x2"] > data[word_crop]["x1"])
+                                (exclude_words[word_crop_]["x2"] < exclude_words[word_crop]["x2"])
+                                and (exclude_words[word_crop_]["x2"] > exclude_words[word_crop]["x1"])
                             )
                             or (
-                                (data[word_crop]["x1"] > data[word_crop_]["x1"])
-                                and (data[word_crop]["x2"] < data[word_crop_]["x2"])
+                                (exclude_words[word_crop]["x1"] > exclude_words[word_crop_]["x1"])
+                                and (exclude_words[word_crop]["x2"] < exclude_words[word_crop_]["x2"])
                             )
                         ):
                             para_words_group.append(word_crop_)
                             added.append(word_crop_)
                     else:
-                        if (data[word_crop_]["y1"] - data[word_crop]["y2"]) < data[
+                        if (exclude_words[word_crop_]["y1"] - exclude_words[word_crop]["y2"]) < exclude_words[
                             word_crop
                         ]["h"] * beta1 and (
                             (
-                                (data[word_crop_]["x1"] < data[word_crop]["x2"])
-                                and (data[word_crop_]["x1"] > data[word_crop]["x1"])
+                                (exclude_words[word_crop_]["x1"] < exclude_words[word_crop]["x2"])
+                                and (exclude_words[word_crop_]["x1"] > exclude_words[word_crop]["x1"])
                             )
                             or (
-                                (data[word_crop_]["x2"] < data[word_crop]["x2"])
-                                and (data[word_crop_]["x2"] > data[word_crop]["x1"])
+                                (exclude_words[word_crop_]["x2"] < exclude_words[word_crop]["x2"])
+                                and (exclude_words[word_crop_]["x2"] > exclude_words[word_crop]["x1"])
                             )
                             or (
-                                (data[word_crop]["x1"] > data[word_crop_]["x1"])
-                                and (data[word_crop]["x2"] < data[word_crop_]["x2"])
+                                (exclude_words[word_crop]["x1"] > exclude_words[word_crop_]["x1"])
+                                and (exclude_words[word_crop]["x2"] < exclude_words[word_crop_]["x2"])
                             )
                         ):
                             para_words_group.append(word_crop_)
@@ -135,17 +181,17 @@ while word_crops:
                 for i in range(len(para_words_group)):
                     word_crop_ = para_words_group[i]
                     if (
-                        abs(data[word_crop_]["yc"] - data[word_crop]["yc"])
-                        < data[word_crop]["h"] * alpha1
+                        abs(exclude_words[word_crop_]["yc"] - exclude_words[word_crop]["yc"])
+                        < exclude_words[word_crop]["h"] * alpha1
                     ):
-                        if data[word_crop]["xc"] > data[word_crop_]["xc"]:
-                            if (data[word_crop]["x1"] - data[word_crop_]["x2"]) < data[
+                        if exclude_words[word_crop]["xc"] > exclude_words[word_crop_]["xc"]:
+                            if (exclude_words[word_crop]["x1"] - exclude_words[word_crop_]["x2"]) < exclude_words[
                                 word_crop
                             ]["h"] * alpha2:
                                 line_words_group.append(word_crop_)
                                 added.append(word_crop_)
                         else:
-                            if (data[word_crop_]["x1"] - data[word_crop]["x2"]) < data[
+                            if (exclude_words[word_crop_]["x1"] - exclude_words[word_crop]["x2"]) < exclude_words[
                                 word_crop
                             ]["h"] * alpha2:
                                 line_words_group.append(word_crop_)
@@ -153,15 +199,15 @@ while word_crops:
                 para_words_group = [
                     p for p in para_words_group if p not in line_words_group
                 ]
-            xc = [data[word_crop]["xc"] for word_crop in line_words_group]
+            xc = [exclude_words[word_crop]["xc"] for word_crop in line_words_group]
             idxs = np.argsort(xc)
             patch_cluster_ = [line_words_group[i] for i in idxs]
             line_words_group = patch_cluster_
-            x1 = [data[word_crop]["x1"] for word_crop in line_words_group]
-            x2 = [data[word_crop]["x2"] for word_crop in line_words_group]
-            y1 = [data[word_crop]["y1"] for word_crop in line_words_group]
-            y2 = [data[word_crop]["y2"] for word_crop in line_words_group]
-            txt_line = [data[word_crop]["txt"] for word_crop in line_words_group]
+            x1 = [exclude_words[word_crop]["x1"] for word_crop in line_words_group]
+            x2 = [exclude_words[word_crop]["x2"] for word_crop in line_words_group]
+            y1 = [exclude_words[word_crop]["y1"] for word_crop in line_words_group]
+            y2 = [exclude_words[word_crop]["y2"] for word_crop in line_words_group]
+            txt_line = [exclude_words[word_crop]["txt"] for word_crop in line_words_group]
             txt = " ".join(txt_line)
             x = [x1[0]]
             y1_ = [y1[0]]
