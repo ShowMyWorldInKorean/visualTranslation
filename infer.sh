@@ -35,14 +35,14 @@ mkdir -p tmp
 ## paragraph detection
 conda activate itv2_hf
 
-if [ "$de" = true ]; then
-    python exclude_key_words.py --file "$input_file"
-    python detect_para.py
-else
-    cp "$input_file" tmp/i_s_info.json
-    cp "$input_file" tmp/para_info.json
-    python form_para_info.py
-fi
+# if [ "$de" = true ]; then
+    # python exclude_key_words.py 
+python detect_para.py --file "$input_file"
+# else
+#     cp "$input_file" tmp/i_s_info.json
+#     cp "$input_file" tmp/para_info.json
+#     python form_para_info.py
+# fi
 
 ## translation
 if [ "$de" = true ]; then
@@ -63,10 +63,9 @@ fi
 ## cropping i_s
 conda deactivate
 conda activate srnet_plus_2
-python generate_crops.py --folder "$input_folder"
 
-## modifying i_s
-python modify_crops.py
+## generate crop and modifying i_s
+python crops.py --folder "$input_folder"
 
 ## creating i_t
 python generate_i_t.py

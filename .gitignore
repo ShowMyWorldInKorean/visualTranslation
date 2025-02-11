@@ -6,8 +6,8 @@ model/hin_eng.model
 engBB.json
 hinBB.json
 
-source_eng/*.jpg  
-source_hin/*.jpg 
+source_eng/
+source_hin/
 
 # Diff_SceneTextEraser 폴더 무시
 Diff_SceneTextEraser/
