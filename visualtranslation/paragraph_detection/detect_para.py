@@ -38,7 +38,7 @@ data = json.load(open(file,'r'))
 exclude_words = {k: v for k, v in data.items() if not exclude(v["txt"])}
 
 # final_data = {k: v for k, v in data.items() if not exclude(v["txt"])}
-# json.dump(final_data, open("tmp/i_s_info.json",'w'), indent=4)
+json.dump(exclude_words, open("tmp/i_s_info.json",'w'), indent=4)
 
 
 
