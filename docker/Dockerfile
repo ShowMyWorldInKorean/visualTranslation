@@ -2,27 +2,33 @@ FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update --allow-releaseinfo-change && \
-    apt-get install -y locales && \
-    localedef -i en_US -f UTF-8 en_US.UTF-8
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-# 필수 패키지 설치
+RUN apt-get update
+
 RUN apt-get install -y \
         python3 \
         python3-dev \
-        libmariadb-dev \
-        libpq-dev \
+        python3-venv \
         net-tools \
         wget \
-        nano \
         vim \
-	git \
         lsof \
-	libgl1 \
-        iputils-ping \
-        python3-pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+        git \
+        iputils-ping
+
+RUN apt-get install -yqq --no-install-recommends locales
+RUN apt-get install -y python3-pip
+
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LC_CTYPE=en_US.UTF-8
+ENV LC_MESSAGES=en_US.UTF-8
+
+RUN apt-get update
+RUN rm -rf /var/lib/apt/lists/*
 
 
 # Anaconda 설치

@@ -15,8 +15,13 @@ Diff_SceneTextEraser/
 # IndicTransToolkit 폴더 무시
 IndicTransToolkit/
 
+# Anaconda sh 삭제
+Anaconda3-2024.10-1-Linux-x86_64.sh
 
 __pycache__/
 cuda-keyring_1.0-1_all.deb
 output/
 tmp/
+
+# Mac
+.DS_Store
