@@ -23,3 +23,6 @@ tmp/
 
 # MAC
 .DS_Store
+
+# anaconda 설치파일 제외
+Anaconda3-2024.10-1-Linux-x86_64.sh
