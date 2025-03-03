@@ -20,3 +20,6 @@ __pycache__/
 cuda-keyring_1.0-1_all.deb
 output/
 tmp/
+
+# MAC
+.DS_Store
