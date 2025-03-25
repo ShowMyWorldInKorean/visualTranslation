@@ -34,7 +34,7 @@ t_t_dir = 't_t'
 t_b_dir = 't_b'
 t_f_dir = 't_f'
 mask_t_dir = 'mask_t'
-example_data_dir = 'custom_feed/labels'
+example_data_dir = 'labels'
 example_result_dir = 'custom_feed/gen_logs'
 
 # predict
