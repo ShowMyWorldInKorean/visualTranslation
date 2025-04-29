@@ -37,4 +37,4 @@ example_result_dir = 'gen_logs'
 # predict
 predict_ckpt_path = None
 predict_data_dir = None
-checkpoint = "model/eng_hin.model"
+checkpoint = "model/eng_kor.model"
