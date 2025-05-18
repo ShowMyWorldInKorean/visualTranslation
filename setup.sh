@@ -58,6 +58,36 @@ pip install torch==1.13.0+cu117 torchvision==0.14.0+cu117 -f https://download.py
 
 conda deactivate
 
+## ✅ OCR Environment Setup
+echo "Setting up OCR environment..."
+conda create -n paddleocr python=3.8 -y
+conda activate paddleocr
+
+# Install PaddlePaddle and PaddleOCR
+pip install paddlepaddle-gpu==2.6.2 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
+pip install "paddleocr>=2.10.0"
+pip install opencv-python-headless pillow
+
+# Clone PaddleOCR repository
+if [ ! -d "paddleocr_repo" ]; then
+    echo "Cloning PaddleOCR repository..."
+    git clone https://github.com/PaddlePaddle/PaddleOCR.git paddleocr_repo
+fi
+
+# Setup OCR directory structure
+mkdir -p OCR/KOR_OCR/models/korean_rec/inference
+
+# Grant execution permissions
+chmod +x OCR/KOR_OCR/run_ocr.py
+
+# Guide for copying model files
+echo "OCR environment setup completed."
+echo "Please copy the fine-tuned model files to the following path:"
+echo "  OCR/KOR_OCR/models/korean_rec/inference/"
+echo "Required files: inference.pdiparams, inference.pdiparams.info, inference.pdmodel, inference"
+
+conda deactivate
+
 ## ✅ Install Image Processing Libraries
 sudo apt update
 sudo apt install -y libpango1.0-dev libcairo2-dev imagemagick
@@ -67,11 +97,10 @@ conda activate itv2_hf
 python -c "import torch; print('CUDA Available:', torch.cuda.is_available())"
 conda deactivate
 
-
-
-
-
-
-
+# Check GPU in OCR environment
+conda activate paddleocr
+python -c "import paddle; print('PaddlePaddle GPU Available:', paddle.is_compiled_with_cuda())"
+conda deactivate
 
 echo "🎉 Setup complete! Everything is ready to use with GPU acceleration."
+echo "To use OCR, add the --ocr flag when running infer.sh"

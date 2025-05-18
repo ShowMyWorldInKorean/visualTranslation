@@ -1,7 +1,12 @@
 #!/bin/bash
+source ~/anaconda3/etc/profile.d/conda.sh
+
 m2m=false
 hin_eng=false
 de=false
+eng_kor=false
+kor_eng=false
+use_ocr=false  # OCR 플래그 추가
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -20,14 +25,90 @@ while [ "$1" != "" ]; do
     "--eng_kor")
         eng_kor=true #한영
         ;;
+    "--kor_eng")
+        kor_eng=true #영한
+        ;;
     "--de")
         de=true
+        ;;
+    "--ocr")  # OCR 플래그 추가
+        use_ocr=true
         ;;
     esac
     shift
 done
 
 mkdir -p tmp
+
+# OCR 처리 추가 (use_ocr 플래그가 true인 경우)
+if [ "$use_ocr" = true ]; then
+    echo "Running OCR for text detection..."
+    
+    # OCR conda 환경 활성화
+    conda activate paddleocr
+    
+    # 결과 디렉토리 생성
+    mkdir -p tmp/ocr_results
+    
+    # OCR 정보 출력 (테스트용)
+    if [ -f "./OCR/KOR_OCR/korean_ocr/info.sh" ]; then
+        bash ./OCR/KOR_OCR/korean_ocr/info.sh
+    fi
+    
+    # 입력 폴더의 이미지에 OCR 적용
+    echo "Scanning images in $input_folder for text..."
+    
+    # 이미지 파일 찾기
+    img_files=$(find "$input_folder" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" \))
+    
+    # OCR 결과를 저장할 JSON 파일 초기화
+    echo "{}" > tmp/ocr_bbox.json
+    
+    # 각 이미지에 대해 OCR 실행
+    for img in $img_files; do
+        echo "Running OCR on: $img"
+        
+        # PaddleOCR로 텍스트 인식 실행
+        python ./OCR/KOR_OCR/run_ocr.py --image "$img" --output "tmp/ocr_results"
+        
+        # OCR 결과를 tmp/ocr_bbox.json에 추가
+        bbox_file="tmp/ocr_results/$(basename "$img" .jpg)_bbox.json"
+        if [ -f "$bbox_file" ]; then
+            python -c "
+import json
+# 기존 결과 로드
+with open('tmp/ocr_bbox.json', 'r') as f:
+    all_results = json.load(f)
+
+# 새 결과 로드
+with open('$bbox_file', 'r') as f:
+    new_results = json.load(f)
+
+# 결과 병합
+all_results.update(new_results)
+
+# 결과 저장
+with open('tmp/ocr_bbox.json', 'w') as f:
+    json.dump(all_results, f, indent=2)
+"
+        fi
+    done
+    
+    # OCR 결과를 입력 파일로 설정
+    if [ -f "tmp/ocr_bbox.json" ] && [ -s "tmp/ocr_bbox.json" ]; then
+        input_file="tmp/ocr_bbox.json"
+        echo "OCR completed. Using generated bounding boxes: $input_file"
+    else
+        echo "OCR did not generate valid bounding boxes."
+        if [ -z "$input_file" ]; then
+            echo "Error: No bounding box file available. Exiting."
+            exit 1
+        fi
+    fi
+    
+    # OCR 환경 비활성화
+    conda deactivate
+fi
 
 ## paragraph detection
 conda activate itv2_hf
@@ -69,27 +150,25 @@ python modify_crops.py
 python generate_i_t.py
 conda deactivate
 
-conda activate SRNet
-python SRNet/predict_origin.py --input_dir ./tmp --save_dir ./tmp/o_f --checkpoint ./SRNet/train_step-500000.model
-## scene text eraser
-# conda deactivate
-# conda activate scene_text_eraser
-# python make_masks.py --folder "$input_folder"
-# python scene_text_eraser.py --folder "$input_folder"
+# scene text eraser
+conda deactivate
+conda activate scene_text_eraser
+python make_masks.py --folder "$input_folder"
+python scene_text_eraser.py --folder "$input_folder"
 
-# ## generating modified images
-# python make_output_base.py --folder "$input_folder"
+## generating modified images
+python make_output_base.py --folder "$input_folder"
 
-# ## generating bg
-# #python make_bg.py
+## generating bg
+python make_bg.py
 
-# ## infer srnet_plus_2
-# conda deactivate
-# conda activate srnet_plus_2
-# #python generate_o_t.py
+## infer srnet_plus_2
+conda deactivate
+conda activate srnet_plus_2
+python generate_o_t.py
 
-# ## blend the crops
-# python blend_o_t_bg.py
+## blend the crops
+python blend_o_t_bg.py
 
 ## generate the final output
 conda deactivate
