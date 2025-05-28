@@ -5,7 +5,7 @@ m2m=false
 hin_eng=false
 de=false
 eng_kor=false
-kor_eng=false
+# kor_eng=false
 use_ocr=false  # OCR 플래그 추가
 
 while [ "$1" != "" ]; do
@@ -25,9 +25,9 @@ while [ "$1" != "" ]; do
     "--eng_kor")
         eng_kor=true #한영
         ;;
-    "--kor_eng")
-        kor_eng=true #영한
-        ;;
+    # "--kor_eng")
+    #     kor_eng=true #영한
+    #     ;;
     "--de")
         de=true
         ;;
@@ -51,9 +51,9 @@ if [ "$use_ocr" = true ]; then
     mkdir -p tmp/ocr_results
     
     # OCR 정보 출력 (테스트용)
-    if [ -f "./OCR/KOR_OCR/korean_ocr/info.sh" ]; then
-        bash ./OCR/KOR_OCR/korean_ocr/info.sh
-    fi
+    # if [ -f "./OCR/KOR_OCR/korean_ocr/info.sh" ]; then
+    #     bash ./OCR/KOR_OCR/korean_ocr/info.sh
+    # fi
     
     # 입력 폴더의 이미지에 OCR 적용
     echo "Scanning images in $input_folder for text..."
@@ -74,37 +74,16 @@ if [ "$use_ocr" = true ]; then
         # OCR 결과를 tmp/ocr_bbox.json에 추가
         bbox_file="tmp/ocr_results/$(basename "$img" .jpg)_bbox.json"
         if [ -f "$bbox_file" ]; then
-            python -c "
-import json
-# 기존 결과 로드
-with open('tmp/ocr_bbox.json', 'r') as f:
-    all_results = json.load(f)
+            python -c " "
 
-# 새 결과 로드
-with open('$bbox_file', 'r') as f:
-    new_results = json.load(f)
-
-# 결과 병합
-all_results.update(new_results)
-
-# 결과 저장
-with open('tmp/ocr_bbox.json', 'w') as f:
-    json.dump(all_results, f, indent=2)
-"
+        echo "Merging OCR results..."
+        python ./OCR_merge.py
+        echo "✅ OCR merging complete."
         fi
     done
     
     # OCR 결과를 입력 파일로 설정
-    if [ -f "tmp/ocr_bbox.json" ] && [ -s "tmp/ocr_bbox.json" ]; then
-        input_file="tmp/ocr_bbox.json"
-        echo "OCR completed. Using generated bounding boxes: $input_file"
-    else
-        echo "OCR did not generate valid bounding boxes."
-        if [ -z "$input_file" ]; then
-            echo "Error: No bounding box file available. Exiting."
-            exit 1
-        fi
-    fi
+
     
     # OCR 환경 비활성화
     conda deactivate

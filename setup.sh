@@ -69,10 +69,10 @@ pip install "paddleocr>=2.10.0"
 pip install opencv-python-headless pillow
 
 # Clone PaddleOCR repository
-if [ ! -d "paddleocr_repo" ]; then
-    echo "Cloning PaddleOCR repository..."
-    git clone https://github.com/PaddlePaddle/PaddleOCR.git paddleocr_repo
-fi
+# if [ ! -d "paddleocr_repo" ]; then
+#     echo "Cloning PaddleOCR repository..."
+#     git clone https://github.com/PaddlePaddle/PaddleOCR.git paddleocr_repo
+# fi
 
 # Setup OCR directory structure
 mkdir -p OCR/KOR_OCR/models/korean_rec/inference
