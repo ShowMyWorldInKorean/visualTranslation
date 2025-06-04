@@ -37,18 +37,20 @@ pip install scipy
 cd $root_dir
 conda deactivate
 
-# ## ✅ Scene Text Eraser Environment Setup
-# git clone https://github.com/Onkarsus13/Diff_SceneTextEraser.git
-# conda create -n scene_text_eraser python=3.9 -y
-# conda activate scene_text_eraser
 
-# cd Diff_SceneTextEraser
-# pip install -e ".[torch]"
-# pip install -e .[all,dev,notebooks]
-# pip install jax==0.4.23 jaxlib==0.4.23
-# pip install "huggingface_hub<0.26.0"
-# cd $root_dir
-# conda deactivate
+##SRNet내부에서 글씨를 지우는 기능하는 코드를 가지고 옵니다.
+# ## ✅ Scene Text Eraser Environment Setup
+git clone https://github.com/Onkarsus13/Diff_SceneTextEraser.git
+conda create -n scene_text_eraser python=3.9 -y
+conda activate scene_text_eraser
+
+cd Diff_SceneTextEraser
+pip install -e ".[torch]"
+pip install -e .[all,dev,notebooks]
+pip install jax==0.4.23 jaxlib==0.4.23
+pip install "huggingface_hub<0.26.0"
+cd $root_dir
+conda deactivate
 
 ## ✅ SRNet Environment Setup
 conda create -n SRNet python=3.9.20 -y
@@ -68,11 +70,6 @@ pip install paddlepaddle-gpu==2.6.2 -f https://www.paddlepaddle.org.cn/whl/linux
 pip install "paddleocr>=2.10.0"
 pip install opencv-python-headless pillow
 
-# Clone PaddleOCR repository
-# if [ ! -d "paddleocr_repo" ]; then
-#     echo "Cloning PaddleOCR repository..."
-#     git clone https://github.com/PaddlePaddle/PaddleOCR.git paddleocr_repo
-# fi
 
 # Setup OCR directory structure
 mkdir -p OCR/KOR_OCR/models/korean_rec/inference

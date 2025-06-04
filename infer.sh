@@ -101,7 +101,11 @@ else
     python form_para_info.py
 fi
 
-## translation
+## translation 
+## translate_de.py
+## translate.py
+## 그리고 셋업에 있는 git clone https://github.com/VarunGumma/IndicTransToolkit
+## 폴더가 필요합니다.
 if [ "$de" = true ]; then
     if [ "$kor_eng" = true ]; then
         python translate_de.py 
@@ -144,6 +148,7 @@ python make_bg.py
 ## infer srnet_plus_2
 conda deactivate
 conda activate srnet_plus_2
+## 이걸 수행 하기 위해서는 해당 파일과 datagen.py 파일이 필요합니다.
 python generate_o_t.py
 
 ## blend the crops

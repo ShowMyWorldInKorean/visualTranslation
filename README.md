@@ -1,4 +1,4 @@
-<h1 align='center'>Show Me the World in My Language: Establishing the First Baseline for Scene-Text to Scene-Text Translation (Official code)</h1>
+<h1 align='center'>Show Me the World in My Language: Establishing the First Baseline for Scene-Text to Scene-Text Translation (Korean Version Code)</h1>
 <p align='center'>
     <a href="https://icpr2024.org/"><img src="https://img.shields.io/badge/ICPR-2024-4b44ce"></a>
     <a href="https://arxiv.org/abs/2308.03024"><img src="https://img.shields.io/badge/Paper-pdf-red"></a>
@@ -12,19 +12,20 @@ Implementation of Baseline for Scene Text-to-Scene Text Translation
 # Release updates:
 - <b>[September 25, 2024]</b> First Public Release (supports training and inference on datasets used in the paper using our best performing baseline reported in the paper. Currently, we support precomputed scene text detection and recognition. In future release, we plan to integrate scene text detection and recognition as well).
   
+  원래는 텍스트 인식, 텍스트 감지는 미리 설정된 수치를 활용했으나, OCR 연결해두었습니다.
 
 # Inference on datasets used 
 This release only supports training and inference on datasets used in the paper, i.e., BSTD and ICDAR 2013, and using precomputed scene text detection and recognition. Please follow the below instructions for inference on our VT-Real dataset. For detailed information for specific tasks check the [training](#training) section 
 
 1. Clone the repo and set up the required dependencies
     ```bash
-    git clone https://github.com/Bhashini-IITJ/visualTranslation.git
+    git clone https://github.com/ShowMyWorldInKorean/visualTranslation.git
     source ./setup.sh
     ```
 
 2. Download the input VT-Real images (which are to be translated) (download details in the [Project page](https://vl2g.github.io/projects/visTrans/)) and put them in folders **source_eng** (ICDAR images) and **source_hin**  (BSTD images) in the project directory.
 
-3. Download the translation checkpoints [eng_hin.model](https://drive.google.com/file/d/1OqloAgsdf-L9hmoeYCW3qrLdtNTQJisx/view?usp=sharing) and [hin_eng.model](https://drive.google.com/file/d/1qb9aUjgGp53lJdfLPUnCVb7mEbd5-gNi/view?usp=sharing) and put them in a folder named **model** inside the project directory.
+3. Download the translation checkpoints [eng_hin.model](https://drive.google.com/file/d/1OqloAgsdf-L9hmoeYCW3qrLdtNTQJisx/view?usp=sharing) and [hin_eng.model](https://drive.google.com/file/d/1qb9aUjgGp53lJdfLPUnCVb7mEbd5-gNi/view?usp=sharing) and [eng_kor.model](https://drive.google.com/drive/my-drive) and put them in a folder named **model** inside the project directory.
 
 4. We provide precomputed/oracle word-level bounding boxes as json files. (In future release, we plan to integrate scene text detection and recognition implementation to our pipeline). Download these json files from the below table, rename them as engBB.json and hinBB.json for English and Hindi source language datasets, respectively. Then, keep them in the project directory.
 
@@ -33,6 +34,9 @@ This release only supports training and inference on datasets used in the paper,
 | :---: | :---: |
 | Eng | [json file for precomputed word bounding boxes](https://drive.google.com/file/d/1S8ayCLhO2EugF3CLQnHm9J7jJEAq8Hr_/view?usp=drive_link) |
 | Hin | [json file for oracle word bounding boxes](https://drive.google.com/file/d/1F_IddWKhw4C4UXOEzH-8a3_4VNqCTias/view?usp=sharing) |
+
+
+여기서 다운로드를 받아도 되나 이미 OCR을 구현해둔 상태입니다.
 
 5. Then, run the following commands to obtain visual translation using our best performing baseline. In both cases a new folder named **output** will be created and the translated images will be saved in it.
   ### Eng &rarr; Hin
@@ -44,7 +48,7 @@ This release only supports training and inference on datasets used in the paper,
   ```bash
   source ./infer.sh -i source_hin  -o output -f hinBB.json --de --hin_eng
   ```
-  
+  영_한 번역의 경우 아래의 코드를 수행하세요.
   ### Eng &rarr; Kor
   ```bash
   source ./infer.sh -i source_eng -o output -f engBB.json --kor__eng=false --de
