@@ -27,7 +27,7 @@ This release only supports training and inference on datasets used in the paper,
 
 2. Download the input VT-Real images (which are to be translated) (download details in the [Project page](https://vl2g.github.io/projects/visTrans/)) and put them in folders **source_eng** (ICDAR images) and **source_hin**  (BSTD images) in the project directory.
 
-3. Download the translation checkpoints [eng_hin.model](https://drive.google.com/file/d/1OqloAgsdf-L9hmoeYCW3qrLdtNTQJisx/view?usp=sharing) and [hin_eng.model](https://drive.google.com/file/d/1qb9aUjgGp53lJdfLPUnCVb7mEbd5-gNi/view?usp=sharing) and [eng_kor.model](https://drive.google.com/drive/my-drive) and put them in a folder named **model** inside the project directory.
+3. Download the translation checkpoints [eng_hin.model](https://drive.google.com/file/d/1OqloAgsdf-L9hmoeYCW3qrLdtNTQJisx/view?usp=sharing) and [hin_eng.model](https://drive.google.com/file/d/1qb9aUjgGp53lJdfLPUnCVb7mEbd5-gNi/view?usp=sharing) and [eng_kor.model](https://drive.google.com/file/d/1kOY28R3os3xvTvTlsK4FabTnAlTuW6um/view?usp=sharing) and put them in a folder named **model** inside the project directory.
 
 4. We provide precomputed/oracle word-level bounding boxes as json files. (In future release, we plan to integrate scene text detection and recognition implementation to our pipeline). Download these json files from the below table, rename them as engBB.json and hinBB.json for English and Hindi source language datasets, respectively. Then, keep them in the project directory.
 
