@@ -55,7 +55,7 @@ conda deactivate
 ## ✅ SRNet Environment Setup
 conda create -n SRNet python=3.9.20 -y
 conda activate SRNet
-pip install -r SRNet/requirements.txt
+pip install -r srnet_plus2.txt
 pip install torch==1.13.0+cu117 torchvision==0.14.0+cu117 -f https://download.pytorch.org/whl/torch_stable.html
 
 conda deactivate
